@@ -1,0 +1,235 @@
+서버란 램과 하드, 보드가 있는 컴퓨터
+24시간 클라이언트의 요청에 응답하거나 접속을 허락하는 것
+
+express.js는? 간단한 코드 몇줄로 서버를 구현하는 프레임워크
+
+다른 사람과 프로젝트를 공유한다면
+node_modules폴더와 package-lock.json는 삭제해도된다.
+
+require('express') : node_modules를 가져오는 기능
+express라는 이름의 폴더를 내 파일들 속에서 찾고, 없다면 node_modules안에서 찾는다.
+
+nodejs의 장점 설치한 다음에 require하거나 import하면 되는거지
+
+매번 터미널창에서 node index.js하지말고 package.json에서 스크립트 엔트리를 만들어서 간단하게 하자
+"scripts":{
+    "start":"node index.js"
+  }
+-->> npm start
+
+#2.4
+GET / POST
+GET : 정보전달 불가
+POST : 서버로 정보전달 가능
+
+#2.5
+Babel : 최신의 js코드를 예전의 무난한 코드로 변경한다.
+설치
+1. npm install @babel/node
+2. npm install @babel/preset-env
+3. npm install @babel/core
+
+설정파일 만들기
+.babelrc파일에 node.js와 js와 관련된 설정들을 저장한다.
+{
+  "presets": ["@babel/preset-env"]
+}
+
+const express = require("express"); 코드를 최신 코드로 변경하면 다음과 같다
+import express from "express";
+
+node index.js 대신에 "babel-node index.js"
+
+ES6의 새로운 기능인 const로 함수 구현하기
+기존)
+function handleProfile(req, res) {
+  res.send("Hi from profile");
+}
+
+ES6) ArrowFunction(=>)
+const handleProfile = (req, res) => res.send("Hi from profile");
+
+변경사항 저장시 서버를 끄고 다시 키는 반복작업을 대신할 nodemon 패키지 설치하기
+프로젝트에 필요한게 아니라 개발자에게 필요한 패키지라 package.json에 다른 엔트리로 존재한다.
+npm install nodemon -D
+그리고 babel-node index.js 대신에 nodemon --exec babel-node index.js으로 변경한다.
+
+#2.6
+서버를 재시작했을 때 babel이 코드를 변경할 때 까지 기다릴 시간으로 2초 딜레이를 설정을 추가한다.
+nodemon --exec babel-node index.js --delay 2
+
+express에서 중요한 middleware개념 소개
+- 처리가 끝날 때까지 연결되어있는 것
+웹사이트에 접속하려고 할때 그때가 시작이다.
+시작되면 index파일을 실행할테고 우리의 application이 route가 존재하는지 살펴보고
+app.get("/", handleHome);에서 슬래시(/)부분 그럼 오케이 home을 요청하는구나 하고 
+home을 찾은 다음에 handleHome이라는 함수를 실행한다.
+handleHome은 응답을 전송하고. "Hi from home"
+
+보통의 연결은 이렇게 간단하지 않고 유저와 마지막 응답 사이에 뭔가가 존재하는데,
+이게 바로 middleware이다.
+
+express의 모든 route와 그런 것들은 connection을 다루는 건 request, response, next를 가지고 있다.
+req, res뿐만 아니라 next도 있는거지
+
+express서버는 마치 양파와 같다. 여러 층이 있는거지 middleware가 바로 그 층인거고
+양파의 중심엔 마지막 함수가 뭔가를 유저에게 반환하는거고
+기본적으로 웹사이트에서 일어나는 모든 것에 대해 하려면
+app.use(betweenHome);를 app.get 최상단에 위치시킨다.
+
+#2.7
+morgan middleware설치. 무슨 일이 어디서 일어났는지 기록하는 로깅에 도움을 준다.
+helmet node.js 앱의 보안에 도움을 준다.
+body-parser 설치. 서버가 유저가 보내는 form이나 json등의 형태를 알기 위해 설치
+cookie-parser 설치. 서버가 session을 알기 위해 설치
+
+설치했으면 import하고 use한다.
+
+cf) yarn은 npm의 대체제 같은 것
+
+#2.8
+ES6 모듈
+모듈이란 다른 파일에서의 코드를 가져다가 사용할 수 있는 것(파이썬 모듈과 비슷)
+app.js를 init.js에서 사용하기 위해 export default app;
+이것의 의미는 누군가 내 파일을 불러올 때(import) app object를 주겠다는 의미
+
+export시 변수만 export 하면 import { userRouter } from "./router"; 이렇게 import하고
+사용시 app.use("/user", userRouter); use로 사용한다.
+use의 의미는 누군가 /user 경로에 접속하면 이 router 전체를 사용하겠단 의미다.
+
+#2.9
+MVC는
+Model : 데이터
+View : 데이터가 어떻게 생겼는지
+Control : 데이터를 찾는 함수
+
+이건 그냥 패턴같은 거다. 일종의 끝내주는 구조(structure)같은거지
+
+1. URL과 함수를 분리하기
+
+#2.10
+동일한 규칙 : 쪼개서 처리하자
+
+const USERS = "/users";
+const USER_DETAIL = "/:id"; 
+이 두 개를 혼합하면 이렇게 쓸 수 있는데, /user/1
+이렇게 하면 나에게 1번 user를 주는거지 이게 로직임
+:id는 변하는 값이구나라고 안다.
+
+routes 오브젝트를 만든다. json형태
+
+이렇게 routes.js를 다 작성하면 import를 통해 이제 어디에서든 사용할 수 있다.
+디렉토리 밖에서 import할 땐 import routes from "../routes";
+cf) 무기명함수 globalRouter.get(routes.home, (req, res) => res.send("Home"));
+
+app.use("/user", userRouter); ==> app.use(routes.users, userRouter);
+이렇게 코드를 쪼개서 처리했을 떄의 장점은 무엇인가?
+전체 URL구조를 기억할 필요가 없다는 거지
+/users/id/edit-profile 대신에 그냥 하나로 할 수 있는거지
+
+#2.11
+이제 videoRouter.get(routes.videos, (req, res) => res.send("videos")); 이러한 구조에서
+자유로워지기 위해 controller를 사용할 차례다
+controller라는 폴더를 만들자
+여기에 비디오 컨트롤러, 유저 컨트롤러를 만드는데
+대개 프로젝트에 있는 각 모델마다 컨트롤러를 만들면 된다.
+
+컨트롤러는 어떤 일이 어떻게 발생할지에 관한 로직이다 (함수)
+
+이제 컨트롤러에 많은 함수들을 추가할텐데, 추가할 함수 각각을 export할꺼다.
+
+ex) export const join = (req, res) => res.send("join");
+이제 export한 함수들을 router에서 import해서 사용하자.
+vscode의 마법같은 기능을 사용할껀데, userController에서 home import를 시도하면 놀라운 기능이 있다.
+직접해보고 느껴보길 바람
+cf) 이 기능은 export했을 때만 작동하는 기능이다.
+
+arrow function에는 implicit return(암시적 리턴) 이라는 것이 있다.
+arrow function에서 무언가를 리턴하고 싶다면, 이렇게 코드를 작성하면 된다.
+function asdfasdf () {
+  return true
+}
+
+lalala = () => true      <<<<<<<<<<--------- 암시적이지
+lalala = () => {    <<<<<<<<<<<<<<<<<---- 이렇게 중괄호 {}를 적으면 암시적 성격을 잃어서
+  return true        <<<<<<<<<<<<<<<<<<<- reutrn 을 써야한다.
+}
+
+#2.13
+pug 설치. pug는 view engine이다
+expressjs -> api reference -> app.set(). read it
+
+cf) app.js
+app.set("view engine", "pug"); -> view engine의 설정값을 pug로 바꾸는 것
+app.use(cookieParser());
+app.use(bodyParser.json());
+
+pug와 express는 view파일들의 위치에 관한 기본 설정이 있다.
+만약 그 설정을 바꾸고 싶다면, 'view'설정을 바꾸면 된다.
+기본적으로 html파일을 저장해야 하는 폴더의 기본 값은 프로젝트의 작업 디렉토리 + '/views'다.
+
+views 폴더를 하나 만들고 그안에 home.pug파일을 만들자.
+
+pug는 템플릿 언어다. express html view engine이지
+그래서 html에서 하던 것처럼 <p>Hello!!</p> 이런식으로 하면 오류가 난다.
+이걸 pug코드로 바꾸면 p Hello!!
+
+이제 이 home.pug 템플릿을 웹사이트에서 보여주려면 어떻게 해야할까?
+res.send -> res.render("home") render함수의 인자로 템플릿 파일 이름을 입력하면 된다.
+render함수가 views폴더에서 파일명이 home이고 확장자가 pug인 템플릿 파일을 찾은 후에 보여줄거다.
+
+#2.14
+html과 css로만 작업할때는 같은 작업을 반복하는 경우가 많았다.
+계속 복붙하는 것 등등
+pug와 같은 것들로 작업하면 html을 생성하는 js의 위력을 사용할 수 있다.
+views폴더안에 layouts폴더를 만들고 main.pug파일을 만들자.
+
+block content <<<<<---- 태그의 변수화
+이 작은 block에 화면의 내용들이 채워질 예정
+정리하자면 doctype html이 있고
+html
+head태그 그안에 title태그가 있다 그리고 head태그를 닫고
+그다음 boyd태그를 시작하고 등등 이러한 태그들을 매번 복붙하지 않으려고 레이아웃을 만들었다.
+
+이제 레이아웃을 사용하려면 어떻게해야할까?
+home파일로 가서 p태그 이전에 파일의 제일 윗부분에 extension이라는걸 할건데,
+왜하냐면, 이 레이아웃을 템플릿에서 확장하겠다는 의미지.
+레이아웃코드를 사용하고 거기에 추가하겠다는 의미지
+
+extends layouts/main 이렇게 하고 나면
+block content가 들어가는 자리에 내용들을 채워넣을 수 있는거지
+
+정리하자면 레이아웃 템플릿(main.pug)을 만들었고. 내용이 들어갈 곳(block content)을 만들었지
+그리고 레이아웃 파일을 extends했지. 이건 레이아웃 전체코드를 복사한다는 의미지
+전체를 복사했기 떄문에 그 위에 덮어쓸 수 있는거지
+
+주의점은 만약 footer가 없는 화면이라면 이 레이아웃을 extends하면 안됨
+
+#2.15
+partials : 페이지의 일부분. 조직적인 목적으로만 만들어짐
+
+※ 프로그래밍은 분할정복(나눠서 처리하는 것)이야.
+※ One single source of truth(한 곳에서만 정보를 보관) 원칙
+
+텍스트 사이에 자바스크립트를 추가하고 싶다면 #{}를 추가하면 된다.
+
+만약 로그아웃 된 상태라면 join과 login이 보여야되고
+로그인 된 상태라면 logout, upload video, profile이 헤더에 보여야겠지
+
+#2.16
+컨트롤러에 있는 정보를 템플릿에 추가하는 방법
+1) 전체 템플릿에 추가하거나
+2) 한 템플릿에만 추가할 수 있지
+
+1) 템플릿 전체에 추가하는 방법
+헤더가 routes객체에 접근하도록 하고싶음
+local라는 middleware를 만들거임 <<<<------- local변수를 global변수로 사용하도록
+
+cf) express -> response -> res.locals
+
+※ import 순서는 알파벳순
+
+이렇게 하는 이유는 템플릿을 직접 수정하지 않고 middlewares.js에서 수정하면됨
+
+
+#2.17
