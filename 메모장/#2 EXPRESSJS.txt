@@ -233,3 +233,92 @@ cf) express -> response -> res.locals
 
 
 #2.17
+2) 한 템플릿에만 변수를 추가는 어떻게?
+예를들면, 어떤 템플릿에는 비디오, 다른 템플릿에는 사용자, 이렇게 다를 수있거든.
+
+비디오 컨트롤러에서만 쓸 변수를 추가하기
+res.render("home", { pageTitle: "Home" }); <<<--- { pageTitle: "Home" } 이부분이 추가됨
+
+
+#2.18
+지금 상태에선 페이지가 이쁘지 않음. 나중에 로직이 다 끝난 후에는 css, frontend 작업을 할 예정
+작업이 섞이는 건 안좋음. 백엔드 할떈 백엔드만
+
+header.pug에 form관련 코드를 추가하고
+.header__column
+        form(action=routes.search, method="get")
+            input(type="text", placeholder="Search by term...")
+
+검색해보면 search뒤에 물음표가 붙는데, 이건 input에 name을 추가하지 않아서 그럼
+
+search페이지에 검색한 단어를 보여주고 싶은데 어떻게하지?
+한 템플릿에만 쓰는 변수를 사용해야지
+비디오컨트롤러 search를 수정할텐데, 검색한 단어가 req에서 보이는지 확인해야됨
+req.query 이녀석!
+cf) 여기까지 했으면 주소창에서 search다음에 &~~~~~로 추가하는것도 가능함
+
+ES6 이전엔 아래와 같이 했음
+const searchingBy = req.query.term;
+새로운 버전!! 두둥!!
+const {} = req; 여기서 req의 query를 가져옴
+const { query } = req; 여기서 query안에 있는 term을 가져오고 싶음
+const { query: { term }} = req;
+
+이렇게 하는것이 기존의 방법보다 정보를 가져오는데 더 좋음
+이제 여기서 term에 이름을 할당할 수도 있음
+const { query: { term: searchingBy }} = req;
+res.render("search", { pageTitle: "Search", searchingBy }); render해주면 끝
+
+근데 사실 예전코드가 더 이쁨
+const searchingBy = req.query.term;
+res.render("search", { pageTitle: "Search", searchingBy : searchingBy })
+
+주의점은 컨트롤러도 query에 접근하려면 method가 get여야함
+
+#2.19
+RREADME.md에 작성
+- [ ] Home 이렇게 하는건 마크다운 형시
+
+join과 login 페이지
+html 추가
+
+페이스북 깃헙에서 인증받아 로그인하는 기능을 추가하기 위해
+partials을 추가함 socialLogin.pug
+
+#2.20
+edit-profile페이지
+label(for) 를 쓴 이유 클릭의 유효범위를 확장시켜줄 때 사용함
+label(for)를 썼으면 input에 id를 for랑 같은 값으로 해야함
+
+문제점
+edit-profile에서 비밀번호를 변경하려고하면 users/change-password로 가는게아니라
+/change-password 주소로 감
+어떻게 해결할지?
+
+#2.21
+전체 애플리케이션의 흐름을 가짜로 한 번 만들어봄
+아직 데이터베이스를 이요해 실제 데이터를 넣기 전이니까
+가짜 정보를 넣어서 템플릿을 완성함 그러면 이제 어떤 일이 어떻게 발생하는지 알 수 있음
+그 후에 데이터베이스를 이용해 실제 정보를 추가하고 사용자 인증 기능도 구현할 수 있음
+
+routes.js에 있는 라우트들은 express와 잘맞음
+express는 /:id/edit같은 것을 이해할 수 있지
+
+어느 하나는 express에 값을 전달하고, 다른 하나는 브라우저에 바로 값을 전달하지 <<- 이게 무슨말?
+
+자바스크립트 배열에서 하나씩 처리하는 방식
+each video in videos
+	h1=video.title
+
+
+
+
+
+
+
+
+
+
+
+
+
