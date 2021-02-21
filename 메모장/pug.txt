@@ -1,0 +1,71 @@
+1. pug 설치
+2. 각 페이지 만들기 - home, search 등등
+3. main 레이아웃 만들기 - doctype html head body
+4. home에서 main레이아웃 확장하기 - extends
+5. partials - header, footer
+6. 아이콘 주소
+link(rel="stylesheet", href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU", crossorigin="anonymous")
+7. footer 유튜브 아이콘 추가하고 간단한 작성하기
+i.fab.fa.youtube, 연도
+8. header
+유튜브 아이콘, join, login 링크
+9. 템플릿(home)에 정보추가
+미들웨어 : 컨트롤러에 있는 정보를 템플릿에 추가하기 - 템플러 하나 혹은 전체(middlewares.js)
+localsMiddleware, siteName, routes - routes를 global 변수로해야 각 템플릿에서 routes.home과 같이 접근가능
+유튜브 아이콘에 링크추가
+10. 하나의 템플릿에만 local 변수 추가하기 - pageTitle
+11. 검색기능 및 결과 보여주기 - header, search
+컨트롤러도 query에 접근하려면 method가 get이여야함
+12. 만들어야 될 페이지
+home,join,login,search, user detail, edit profile, change password, upload, video detail, edit video
+13. home페이지부터 시작
+실제 데이터를 사용하기 전에 가짜 db로 데스트할 예정이라 간단하게
+14. join페이지
+name, email, pw
+15. login페이지
+소셜로그인 - 깃헙, 페북 로그인
+16. edit profile페이지
+.form-container, label, file, name, email, link(change password)
+17. editVideo, upload페이지
+form추가
+18. edit video 페이지
+delete video 링크에서 id인식 못하는거 고치기 -
+routes.deleteVideo는 express로 값을 전달하지만 유저는 브라우저로 바로 값을 전달하기에 이런 오류가 발생
+19. 가짜 데이터베이스 활용하기
+가짜 정보를 위한 db.js 만들기 - videos = []
+videoController의 home에서 video 목록을 받아서 render함수에 전달
+home페이지에서 간단한 videos 배열 each로 렌더하기
+20. mixin - 웹사이트에서 반복되는 코드를 복붙하지않고 재활용하는 방법 ex) 사이드바
+21. home페이지에서 직접 코드를 적지않고 +videoBlock({})하기
+22. 동영상 안나오는 거 해결
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "script-src 'self' https://archive.org"
+  );
+  next();
+});
+23. search페이지
+home와 비슷함. 비디오컨트롤러에서 vidos 추가
+24. join페이지
+누군가 회원가입을 하면 자동으로 login하고 home화면으로 이동
+25. login페이지
+만약 로그인에 성공했다면 home 페이지로
+로그인 했는지 여부 로직 header에 추가 user.isAuthenticated
+middlewares에 res.locals.user = {isAuthenticated=true}
+26. profile 클릭시 발생되는 문제
+/:id 오류 - middleware에 설정된 id가 url에 들어가도록 하고싶음 -> routes를 수정
+express는 /:id를 이해하지만, html은 /:id경로를 모름 -> id가 url에 들어가도록 수정
+userDetail를 매겨변수가 있는 함수로 객체로 하기
+27. videoDetail id수정 문제
+28. 비디오 클릭시 video detail로 보이게하기
+mixin 수정 - 링크로 덮기
+29. 로그아웃 페이지
+로그아웃하면 바로 home으로 redirect
+30. upload경로수정
+31. getUpload, postUpload
+비디오 업로드시 해당 비디오의 id를 가질 수 있게
+업로드 후에 사용자를 새로 생성된 비디오 id에 해당하는 videoDetail페이지로 redirect
+
+
+
