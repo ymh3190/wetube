@@ -6,7 +6,7 @@
 6. 아이콘 주소
 link(rel="stylesheet", href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU", crossorigin="anonymous")
 7. footer 유튜브 아이콘 추가하고 간단한 작성하기
-i.fab.fa.youtube, 연도
+i.fab.fa-youtube, 연도
 8. header
 유튜브 아이콘, join, login 링크
 9. 템플릿(home)에 정보추가
