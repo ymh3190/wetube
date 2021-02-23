@@ -1,0 +1,80 @@
+1. 개념
+NoSQL로 분류됨. 데이터베이스는 크게 2가지 종류가 있는데, SQL과 NoSQL
+몽고db는 더 적은 규칙과 더 적은 절차로 작업이 가능한 db
+
+설치했으면, 시스템환경변수 (예) C:\Program Files\MongoDB\Server\4.4\bin 추가
+다운로드가 잘 됐는지 확인 : mongod
+
+2. 명렁어
+실행 : mongo
+종료 : exit
+
+3. mongoDB와 nodejs연결에 필요한 어댑터
+어댑터 : mongoose
+어댑터 설치 : npm install mongoose
+
+cf) 많은 relationship이 필요없는 일반적인 프로젝트에 좋음
+cf) 같은 서버에서 다양한 종류의 db들을 사용할 수있음
+
+4. mongodb 장점
+실시간 채팅을 만든다면 적합한 db. 생성이 매우 빠르고 엄격하지 않음
+
+#3.1
+cf) database 관련 작업
+cf) 누구나 사용할 수 있게 만들기( 영상 업로드, 시청 등 )
+1. dotenv 설치 : npm install dotenv
+2. 설정 추가
+useNewUrlParser: true,
+useFindAndModify: false,
+3. once함수
+함수이름대로 한 번만 실행. 여기에 db에 연결됐는지 확인하는 로직 추가
+4. 버전오류
+npm install mongoose@5.11.15 낮은 버전으로 설치
+5. dotenv 설치 이유
+데이터를 숨기고 싶을 때 -> 소스코드에 있는 url로부터 유저 데이터를 보는걸 원치 않음
+
+#3.2
+1. dotenv 구성
+,env파일 생성 -> 이름은 environment나 secret으로 하나 상관없음
+2. gitignore에 env추가
+추가되어있는지 확인만하면됨
+
+#3.3 video model
+mongodb의 장점은 document를 줄여준다는 것 -> json file
+하지만 mongodb에 우리의 파일들이 어떤 식으로 생겨야 할 지 알려줘야함
+1. model : 실제 데이터
+document name, schema(형태)
+cf) 스키마
+데이터베이스의 구조와 제약조건에 관해 전반적인 명세를 기술한것입니다.
+상세 하게 말하자면 개체의 특성을 나타내는 속성과 속성들의 집합으로 이루어진 개체, 개체 사이에 존재하는 관계에 대한 정의와 이들이 유지 해야할 제약조건들을 기술한것입니다.
+DB내에 어떤 구조로 데이터에 저장되는가를 나타내는 데이터베이스구조를 스키마 라고 합니다.
+출처: https://121202.tistory.com/19 [안방철의 방구석]
+
+#3.4 comment model
+data의 relationship -> 이 경우엔 comment는 자기 자신과의 관계
+한쪽에서 video를 생성하고 다른쪽에서 comment를 생성했을 때 둘을 어떻게 연관시킬까?
+comment에 video의 id를 저장하거나, video가 id의 배열을 가지고 있는거지
+모든 object들은 보통 id를 가지고있다(주소값) 따라서 모든 comment의 정보를 저장하는 대신
+모든 video들이 comment id들을 가지고 있는거지
+
+#3.5 만든 model 사용하기
+import Video 하기
+async
+try catch, throw
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
