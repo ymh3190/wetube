@@ -14,7 +14,7 @@ NoSQL로 분류됨. 데이터베이스는 크게 2가지 종류가 있는데, SQ
 어댑터 설치 : npm install mongoose
 
 cf) 많은 relationship이 필요없는 일반적인 프로젝트에 좋음
-cf) 같은 서버에서 다양한 종류의 db들을 사용할 수있음
+cf) 같은 서버에서 다양한 종류의 database를 사용할 수있음
 
 4. mongodb 장점
 실시간 채팅을 만든다면 적합한 db. 생성이 매우 빠르고 엄격하지 않음
@@ -26,12 +26,15 @@ cf) 누구나 사용할 수 있게 만들기( 영상 업로드, 시청 등 )
 2. 설정 추가
 useNewUrlParser: true,
 useFindAndModify: false,
+이걸 적는 이유는 새로운 버전의 mongoose는 이런 식으로 configuration을 보낼 수 있다.
+MongoDB를 사용할 때마다 항상 이러한 환경설정을 지정하는거지
 3. once함수
-함수이름대로 한 번만 실행. 여기에 db에 연결됐는지 확인하는 로직 추가
+함수이름대로 한 번만 실행. 여기에 db에 연결이 잘 됐는지 성공여부를 확인
 4. 버전오류
 npm install mongoose@5.11.15 낮은 버전으로 설치
 5. dotenv 설치 이유
 데이터를 숨기고 싶을 때 -> 소스코드에 있는 url로부터 유저 데이터를 보는걸 원치 않음
+6. mongoose.connect(string으로 된 database의 url, )
 
 #3.2
 1. dotenv 구성
@@ -46,7 +49,7 @@ mongodb의 장점은 document를 줄여준다는 것 -> json file
 document name, schema(형태)
 cf) 스키마
 데이터베이스의 구조와 제약조건에 관해 전반적인 명세를 기술한것입니다.
-상세 하게 말하자면 개체의 특성을 나타내는 속성과 속성들의 집합으로 이루어진 개체, 개체 사이에 존재하는 관계에 대한 정의와 이들이 유지 해야할 제약조건들을 기술한것입니다.
+상세하게 말하자면 개체의 특성을 나타내는 속성과 속성들의 집합으로 이루어진 개체, 개체 사이에 존재하는 관계에 대한 정의와 이들이 유지 해야할 제약조건들을 기술한것입니다.
 DB내에 어떤 구조로 데이터에 저장되는가를 나타내는 데이터베이스구조를 스키마 라고 합니다.
 출처: https://121202.tistory.com/19 [안방철의 방구석]
 
@@ -92,17 +95,93 @@ user avatar도 같은 방식
 ※ user에 해당하는 파일을 server에 저장하는건 좋은게 아님
 ※ 이건 단지 예시일 뿐임
 
+#3.8
+home에서 비디오 링크 클릭시 비디오 상세페이지로 이동
+video id받기
+console.log(req.params); -> id만 가능함 왜? routes에서 video_detail이 :id를 주시하기 때문에
+Video.findById(id);
 
+#3.9
+routes -> editVideo : (id) => {}
+value=video.title
+=video.description
+만약 에러가 생기면 home redirec를 시키는거를 middleware로 할 수잇음
+try catch 반복하는 것을 middleware로 만들 수 있다?
+findOneAndUpdate
 
+#3.10
+deleteVideo
+findOneAndRemove
 
+#3.11 eslint prettier -> googling
+새로운 비디오가 먼저 나오게 하기
+ESLint : js로 작성한 코드가 틀린게 있다면 알려주는거
+npm은 package를 설치하는거
+cf) eslint --init 오류 해결
+1. 아래 순서대로 eslint와 prettier플러그인 및 설정, prettier를 설치해주세요.
+npm install eslint -D
+npm install eslint-plugin-prettier -D
+npm install eslint-config-prettier -D
+npm install prettier -D
 
+2. npx eslint --init
 
+3. 이제 질문이 계속 나오는데 아래 순서대로 선택해주세요.
+- To check syntax, find problems, and enforce code style
+- JavaScript modules (import/export)
+- None of these
+- No
+- Node
+- Use a popular
+- Airbnb
+- Javascript
+- Yes
 
+4. 확장프로그램 검색으로 ESlint extension을 설치해주세요.
 
+5. VScode에서 윈도우는 Ctrl +, 맥은 Cmd +, 입력해주세요.
 
+6. 검색창에 actionon을 입력해준 뒤
+Eslint > Code Actions On Save 가 all로 되어있는지 확인해주세요.
 
+7. 그리고 바로 위에 Edit in setting.json을 클릭해 들어가주세요.
+editor.formatOnSave 가 ture로 되있는지 확인해주시고
+editor.codeActionsOnSave는 null로 되어있을텐데
+{ "source.fixAll":true, "source.fixAll.eslint": false} 로 수정해주고 저장해주세요.
 
+8. 왼쪽사이드보시면 .eslintrc.js가 생성되어있을거에요.
+들어가셔서
+env: {
+browser: true,
+es2021: true,
+node: true,
+},
+extends: [
+'airbnb-base', "plugin:prettier/recommended"
+],
+parserOptions: {
+ecmaVersion: 12,
+sourceType: 'module',
+},
+rules: {
+"prettier/prettier": "off",
+"no-console":"off",
+"spaced-comment":"off",
+"no-else-return":"off"
+},
+};
+이렇게 수정해주고 저장해주세요.
 
+9. VScode의 오른쪽 하단에 빨간 금지아이콘과 함께 ESlint라고 있을거에요.
+눌러서 allow everywhere 으로 설정해주세요.
+그러면 이제 ESlint가 작동하기 시작해요.
+
+#3.12
+regular expression
+videos = await Video.find({ title: searchingBy }); <- 검색한 단어와 완전히 일치하는 것만 찾음
+$regex : regular expression
+그냥 find를 이용해서 제목을 찾지말고, 이런 regular expression을 이용해서 제목을 찾음
+$opstions: "i" -> insentive 덜 민감한
 
 
 
