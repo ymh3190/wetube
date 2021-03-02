@@ -47,6 +47,8 @@ mongodb의 장점은 document를 줄여준다는 것 -> json file
 하지만 mongodb에 우리의 파일들이 어떤 식으로 생겨야 할 지 알려줘야함
 1. model : 실제 데이터
 document name, schema(형태)
+Date.now 자체는 함수이고, 
+Date.now()는 함수를 실행해서 현재 날짜를 반환함
 cf) 스키마
 데이터베이스의 구조와 제약조건에 관해 전반적인 명세를 기술한것입니다.
 상세하게 말하자면 개체의 특성을 나타내는 속성과 속성들의 집합으로 이루어진 개체, 개체 사이에 존재하는 관계에 대한 정의와 이들이 유지 해야할 제약조건들을 기술한것입니다.
@@ -56,13 +58,14 @@ DB내에 어떤 구조로 데이터에 저장되는가를 나타내는 데이터
 #3.4 comment model
 data의 relationship -> 이 경우엔 comment는 자기 자신과의 관계
 한쪽에서 video를 생성하고 다른쪽에서 comment를 생성했을 때 둘을 어떻게 연관시킬까?
-comment에 video의 id를 저장하거나, video가 id의 배열을 가지고 있는거지
+comment에 video의 id를 저장하거나, video가 comment id의 배열을 가지고 있는거지
 모든 object들은 보통 id를 가지고있다(주소값) 따라서 모든 comment의 정보를 저장하는 대신
 모든 video들이 comment id들을 가지고 있는거지
 
 #3.5 만든 model 사용하기
-import Video 하기
-async
+import Video 하기 - database의 element가 아니라 이건 단지 model임. element를 받는 통로일 뿐이지, element 자체는 아님
+async - 동시에 일어나지 않는, 비동기. 한 번에 하나만 처리
+const videos = await Video.find({}); 여기서 Video는 데이터베이스에 videoschema형태로 저장된 데이터 통로같은거
 try catch, throw
 
 #3.6
@@ -81,7 +84,7 @@ home페이지에서 비디오가 안나오는 문제 해결
 원인은 link가 망가짐
 dest: "videos/" --> dest: dest: "uploads/videos/"로 변경
 이떄 /uploads이와같이 uploads 앞에 슬러쉬를 붙이지 않는게 중요함
-붙인다면 프로젝트 안에 존재하는 uploads디렉토리라고 인식함
+붙인다면 컴퓨터의 root에 uploads디렉토리를 만듦
 
 terminal -> mongo -> help -> set current db -> use we-tube - > show collections
  -> db.show collections결과.remove

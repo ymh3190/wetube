@@ -1,3 +1,82 @@
 1. mongoose, dotenv 설치
 2. db에서 mongoose import, MongoDB와 연결
 3. init에서 db import하기
+4. dotenv 구성하기 - .env 파일생성
+5. db.js, init.js에서 env 적용하기
+import dotenv, dotenv.config(), process.env.~~~
+6. models폴더 생성 - Video.js
+7. Video Model - name, schema
+import mongoose from "mongoose";
+스키마정의하기 - fileUrl, title, description, views, createdAt
+8. init.js에서 Video model import
+9. Comment Model
+import mongoose from "mongoose";
+스키마 정의하기 - text, createdAt
+10. data의 relationship
+comment에서 video id를 저장하거나, video에서 comment의 id를 배열로 가지거나 2가지방법
+Video.js에서 comments: [mongoose.Schema.Types.ObjectId, ref] 추가
+11. init.js에서 Comment model import
+12. model 사용하기
+videoController에서 import Video 
+13. home
+async, const videos = await Video.find({});
+try catch
+14. video가 아닌 file이 들어오지 않게 보호하기
+upload.pug에서 accept="video/*"추가
+npm install multer -> form에 enctype="multipart/form-data"추가
+15. import multer
+middlewares.js에서
+const multerVideo = multer({ dest: "videos/" });
+export const uploadVideo= multerVideo.single("videoFile");
+16. home.pug, videoBlock.pug에서 video.videoFile -> video.fileUrl
+17. postUpload함수
+async추가, create
+videoBlock과 home.pug에서 videoFile->fileUrl
+18. middlewares에서 uploads/ -> videos/uploads/
+19. node -> mongo -> use we-tube -> show collections -> db.videos.remove({});
+20. uploads접속시 하위 폴더로 접근
+app.use("/uploads", express.static("uploads"));
+21. uploads gitignore추가
+22. videoDetail - 함수 주소창에서 id값 얻어오기
+console.log(req.params);
+findById()
+23. videoDetail.pug - 비디오 상세페이지 작성
+.video__player -> video
+.video__info -> a h5 span p
+24. routes.js
+editVideo
+25. videoDetail.pug
+routes.editVideo -> routes.editVideo()
+26. videoRouter.js
+routes.editVideo -> routes.editVideo()
+27. getEditVideo
+findById
+28. routes.editVideo -> get, post 추가
+29. editVideo.pug
+input(type="text", name="title", placeholder="title", value=video.title)
+textarea(name="description", placeholder="description")=video.description
+30. postEditVideo
+findOneAndUpdate
+31. delete Video
+routes.js에서 deleteVideo수정
+32. editvideo.pug에서 a부분 수정
+33. videoRouter.js에서 deleteVideo()수정
+34. deleteVideo함수에서
+findOneAndUpdate
+35. home.pug에서 최신순 비디오 정렬
+sort({ _id: -1 })
+36. ESLint 설치
+37. search함수 - regular expression ( regex )
+videos = await Video.find({
+      title: { $regex: searchingBy, $options: "i" },
+    });
+38. search.pug
+if videos.length === 0
+    h5 No Vides Found
+videoFile -> fileUrl 변경
+39. videoDetail.pug
+댓글 갯수에 따른 단복수 출력
+
+
+
+
