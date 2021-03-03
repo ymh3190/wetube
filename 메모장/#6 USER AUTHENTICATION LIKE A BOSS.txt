@@ -1,0 +1,50 @@
+1. 인증기능을 위한 passport.js
+middleware로 사용자 인증을 구현시켜줌. 여기서 인증이란? 브라우저 상에 쿠키를 설정해주면
+그 쿠키를 통해서 사용자 id등을 알 수 있고, passport가 브라우저에서 자동으로 쿠키를 가져와서
+인증이 완료된 user object를 controller에 넘겨줌
+passport 모듈의 장점은 다른 모듈도 지원해준다는거 인스타그램, 트위터, http, 구글, 깃헙 등등
+쿠키란? 우리가 브라우저에 저정할 수 있는 것들임
+모든 request에 대해서, 백엔드로 전송될 정보들이 담겨있음
+cf) passport.js document
+passport & passport-local-mongoose 모듈을 사용할 예정
+
+
+#6.1
+1. User.js
+UserSchema작성
+2. init.js에서 import user.js
+3. npm install passport-local-mongoose
+4. user.js에서 import passport-local-mongoose
+5. userSchema에 플러그인 추가
+6. 사용자 인증을 위한 passport.js 파일생성
+npm install passport passport-local
+7. passport.js에서
+passport와 User를 import한 후에
+passport.use()함수를 통해 strategy를 사용할텐데, strategy는 로그인 방식을 의미, 페이스북 혹은 깃헙 등
+
+#6.2
+serialize : 어떤 정보를 쿠키에게 주느냐를 의미. 지금 웹브라우저(즉, 클라이언트)에 있는 사용자에 대해서 어떤 정보를 가질 수 있느냐
+※ 쿠키는 아주 작아야하고, 민감한 정보는 절대로 담지마
+deserialize : 쿠키의 정보를 어떻게 사용자로 전환하는가를 의미. 어느 사용자인지 어떻게 찾는가? 만약 쿠키를 받아봤는데, id가 1이라면 어떻게할까?
+
+passport.js에서 사용자 인증을 처리할 설정
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+이렇게 간단할 수 있는 이유는 passport-local-mongoose 덕분임
+
+globalRouter에 postJoin함수 쪽에 패스워드를 체크하는 미들웨어를 추가
+
+사용자를 가입시키고, 로그인 시키기 위해 userController.js에서
+import user model
+
+user.create는 생성시키고 db에 저장까지 함
+
+#6.3
+postJoin컨트롤러를 middleware로 변경
+매개변수에 next추가
+
+
+#6.4
+express-session 설치
+
+
