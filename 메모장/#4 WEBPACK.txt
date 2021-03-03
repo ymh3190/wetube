@@ -94,7 +94,7 @@ npm install --save-dev autoprefixer
 
 const autoprefixer = require("autoprefixer");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-browser -> browserslist
+browser -> overrideBrowserslist
 
 변수만들기
 scss폴더안에 config폴더를 만들고 _variable.scss 추가
