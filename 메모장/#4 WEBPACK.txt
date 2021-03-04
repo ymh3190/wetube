@@ -55,7 +55,6 @@ mode: MODE 추가
 "dev:assets": "cross-env WEBPACK_ENV=development webpack",
 "build:assets": "cross-env WEBPACK_ENV=production webpack"
 > npm cache clean --force
-> npm i
 > npm install -D cross-env
 21. 여기까지 했어도 scss에 대한 경고가 뜨는데
 webpack.config.js에 config객체에
