@@ -48,3 +48,38 @@ postJoin컨트롤러를 middleware로 변경
 express-session 설치
 
 
+#6.5
+데이터베이스를 사용해서 세션 저장하기
+connect-mongo를 써서 session에게 데이터를 MongoStore라는 저장소에 저장하라고 알려줌
+npm install connect-mongo@2.0.1
+
+이미 로그인 한 사람이 회원가입 못하게 미들웨어 만듦
+
+passport와 session 덕분에 req.user를 통해서 로그인한 유저를 알 수 있음
+
+비밀번호 변경과 프로필 수정은 로그인 된 상태에서만 가능하도록 미들웨어를 만듦
+
+
+#6.6
+passport-github 설치
+
+깃헙에서 돌아오는 과정,
+깃헙으로 보내는 과정
+
+
+#6.7
+깃허브로그인을 위한 route만들기
+
+#6.8
+cb함수는 passport에서 제공된 callback함수. passport에서 이 cb(callback함수)를 인증에 성공한 상황에서 호출해야됨
+
+
+
+
+
+
+
+
+
+
+

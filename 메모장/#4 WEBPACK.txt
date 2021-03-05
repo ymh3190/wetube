@@ -1,24 +1,45 @@
 #4.0
 webpack : module bundler
 많은 파일들을 가져와서 webpack에게 주면, 완전히 호환되는 static파일들로 변환해서 주는것
+cf) sass는 섹시한 css임
+다시말해, 우린 모던 자바스크립트(ES6)를 webpack안에 넣을거고, 그거 받은 webpack은 그냥 일반적인 css와
+오래된(혹은 노멀한) 자바스크립트로 변환해서 브라우저가 알아들을 수 있도록 할거다
+
+
 1. 설치
 npm install webpack webpack-cli / webpack 하나는 파일에서 webpack을 사용하기 위함이고
 다른 하나는(webpack-cli)는 터미널에서 webpack을 쓸 수 있게 하기 위함
-2. webpack.config.js 생성
+
+2. webpack.config.js 생성 <= webpack을 쓰기 위한 환경설정이라고 보면됨
+
 3. package.json
 start -> dev:server로 변경
-"dev:assets": "webpack: 추가
+"dev:assets": "webpack: 추가 <= npm run dev:assets이라고 치면 webpack을 불러오도록하고, webpack은 자동으로 webpack.config.js파일을 찾음
+이 파일 이름은 웬만하면 바꾸지말고, 바꾼다면 알려줘야됨 ex) dev:assets : "webpack --config ~~"
+기본적인 규칙은 webpack은 exported configuration object를 찾음
+※ 중요한건 이 webpack.config.js 파일 안에서는 server코드와 연관시키지 말아야한다는 것
+100% 완전 client code로 만들어야됨
+
 4. webpack.config.js
-여기선 최신 js문법을 쓸 수 없음. 예전문법을 써야됨
+여기선 최신 자바스크립트 문법을 쓸 수 없음. 예전문법을 써야됨
 const config = {};
 module.exports = config;
+webpack은 두 가지를 갖고있는데, 하나는 entry이고, 다른 하나는 output임
+entry는 파일들이 어디에서 왔는가이고
+output은 그걸 어디에 넣을 것인가를 의미
+
 5. assets 폴더생성
 안에 js와 scss폴더 생성
+
 6. js폴더안에 main.js생성, scss폴더 안에 styles.scss 생성
-7. main.js에서 import styles.scss
+
+7. main.js에서는 최신 자바스크립트 문법을 써서 import styles.scss
+
 8. styles.scss에서 간단한 body{background-color:red;}
+
 9. webpack.config.js에서
-const ENTRY_FILE, const OUTPUT_DIR
+const ENTRY_FILE, const OUTPUT_DIR 변수 생성
+
 10. path
 node.js에는 파일과 디렉토리 경로를 absolute로 만들어주는 방법이 있음
 다시말해, 컴퓨터나 서버에서의 전체 경로를 갖게 되는거지
@@ -27,37 +48,45 @@ node.js에는 파일과 디렉토리 경로를 absolute로 만들어주는 방�
 path는 node.js에 기본적으로 설치된 패키지
 const path = require("path"); <-이렇게 적은건 import path from "path"와 같음
 webpack.config.js는 모던 자바스크립트가 아니라서 import를 모름
+
 11. ENTRY_FILE
 const ENTRY_FILE = path.resolve(__dirname,"assets","js","main.js")
 __dirname은 현재 프로젝트 디렉토리 이름인데, 이건 어디서나 접근 가능한 node.js전역변수
 그다음은 경로
+
 12. OUTPUT_DIR
 const OUTPUT_DIR = path.join(__dirname, "static"); <= static이라는 폴더로 export
 13. config변수에서
 entry: ENTRY_FILE, output: OUTPUT_DIR 만 추가하면 끝
 14. 실행
-npm run dev:assets
+npm run dev:assets 이렇게 실행하면 2가지 오류가 뜨는데,
+mode옵션과 production에 대한 오류
 
 
 #4.1
 15. dev:assets 엔트리에
 cf) env파일에서 환경설정을 하고, db에서 process.env.MONGO_URL로 사용했었음
-이걸 수동으로 직접 설정하는 법. 이걸 왜하냐? mode를 설정하기 위해
-WEBPACK_ENV=development 추가
-16. "build:assets" 엔트리 추가
-"WEBPACK_ENV=production webpack" <= 내 코드를 서버에 올려줌
+webpack은 env를 넘겨받지 못하는데, 수동으로 해줘야됨
+스크립트 부분으로 와서 mode오류해결을 위해 dev:assets에 WEBPACK_ENV=development를 앞에 추가함
+production오류해결을 위해 "build:assets": "WEBPACK_ENV=production webpack"를 추가 <= 내 코드를 서버에 올려줌
+
 17. webpack.config.js에서
-const MODE = process.env.WEBPACK_ENV; 추가 <= 설정한 거 사용
+const MODE = process.env.WEBPACK_ENV; 추가 <= 설정한 거 사용. 이떄 스크립트에 썼던 이름(WEBPACK_ENV)과 같아야됨
+
 18. config에
 mode: MODE 추가
+
 19. 그러고 나서 실행 npm run dev:assets
+
 20. 오류 'WEBPACK_ENV'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는 배치 파일이 아닙니다.
 "dev:assets": "cross-env WEBPACK_ENV=development webpack",
 "build:assets": "cross-env WEBPACK_ENV=production webpack"
 > npm cache clean --force
+> npm install
 > npm install -D cross-env
+
 21. 여기까지 했어도 scss에 대한 경고가 뜨는데
-webpack.config.js에 config객체에
+webpack.config.js에 config객체에 추간
 moduel: {
     rules: [
       {
@@ -65,8 +94,12 @@ moduel: {
       },
     ],
   },
-추가
-rules안에서 하는건 webpack에게 파일을 처리하는 방법을 알려주는 역할
+webpack이 module을 만났을 때, 
+rules가 module안에 배열로 존재하는데, 하는건 예를들어 'scss파일을 만날때 마다 어떤 loader를 실행해라' 이런식으로
+webpack에게 파일을 처리하는 방법을 알려주는 역할
+
+
+
 22. 앞으로 할 거
 처음에는 확장자 scss인 파일을 찾고, 그걸 css로 바꾸고
 전체 텍스트 중에 그 css의 텍스트를 추출하고. 추출된 css를 분리된 하나의 파일로 만드는 거지
@@ -137,14 +170,51 @@ entry: ENTRY_FILE -> entry: ["@babel/polyfill", ENTRY_FILE]으로 변경
 webpack의 설정에 변화를 줬으면 dev:assets를 다시 실행해야됨
 
 
+참고) https://jeonghwan-kim.github.io/js/2017/05/15/webpack.html
+0. 웹팩이란?
+하나의 파일로 묶어(bundled) 네트워크 비용을 최소화 할수 있는 방법
+중요한 개념 4가지 : 1. entry 2. output 3. loader 4. 플러그인
+웹팩에서 모든 것은 모듈임 자바스크립트, 스타일시트, 이미지 등 모든 것을 자바스크립트 모듈로 로딩해서 사용
 
 
+1. entry
+웹팩은 엔트리를 통해서 필요한 모듈을 로딩하고 하나의 파일로 묶는데,
+엔트리란? 웹팩이 진입하는 시작점
+entry키에는 시작점 경로를 지정한다.
+ex) webpack.config.js:
+module.exports = {
+  entry: {
+    main: "./src/main.js",
+  },
+}
 
+2. output
+엔트리에 설정한 자바스크립트 파일을 시작으로 의존하는 모든 모듈을 하나로 묶음
+번들된 결과물을 처리할 위치는 output에 지정한다
+ex) webpack.config.js:
+module.exports = {
+  output: {
+    filename: "bundle.js",
+    path: "./dist",
+  },
+}
+그리고 html파일에서는 번들링된 이 파일을 로딩하게끔 한다.
+ex) 
+script(src="/static/main.js")
 
+3. loader
+웹팩은 모든 파일을 모듈로 관리하는데, 자바스크립트 파일 뿐만 아니라 이미지, 폰트, 스타일시트도 전부 모듈로 관리함
+근데 웹팩은 자바스크립트 밖에 모름. 그래서 비 자바스크립트 파일을 웹팩이 이해하게끔 변경해야하는데 로더가 그런 역할을 한다.
+로더는 test와 use키로 구성된 객체로 설정할 수 있다.
+test에 로딩할 파일을 지정하고
+use에 적용할 로더를 설정한다
 
+4. plugin
+로더가 파일단위로 처리하는 반면 플러그인은 번들된 결과물을 처리한다.
+번들된 자바스크립트를 난독화 한다거나 특정 텍스트를 추출하는 용도로 사용할 수 있다.
 
-
-
-
-
+5. 정리
+웹팩은 기본적으로 모듈 번들러다.
+의존성 그래프에서 엔트리로 그래프의 시작점을 설정하면 웹팩은 모든 자원을 모듈로 로딩한 후 아웃풋으로 묶어준다
+로더로 각 모듈별로 바벨, 사스변환 등의 처리하고 이 결과를 플러그인이 받아 난독화, 텍스트 추출 등의 추가 작업을 한다.
 
