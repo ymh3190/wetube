@@ -12,15 +12,33 @@ passport & passport-local-mongoose 모듈을 사용할 예정
 #6.1
 1. User.js
 UserSchema작성
-2. init.js에서 import user.js
-3. npm install passport-local-mongoose
+2. init.js에서 import user.js <= 아직 user.js에 passport가 없는데, 우린 passport-local-mongoose를 쓸테니까 플러그인으로 추가할 예정
+3. npm install passport-local-mongoose <= 이게 패스워드설정, 확인 등등 그런 것들을 자동으로 해줌
 4. user.js에서 import passport-local-mongoose
 5. userSchema에 플러그인 추가
+UserSchema.plugin(passportLocalMongoose, {usernameField:email}); <= 어떤 변수를 usernameField로 할지 알려줘야됨
+혹시나 usernameField의 변수명을 바꾼다면 이미 코딩된것들을 쓸 수 없음. 본인이 다시 코딩해야됨.
+그러므로 usernameField변수명을 그대로 써서 이미 구현된것들을 활용하자
+
+이렇게 usernameField로 email을 설정을 했으면, user를 가지고 여러가지 method를 쓸 수 있게 됨
+이런 메소드를 쓸 수 있다고해서 사용자 인증까지 된 건 아님
+
+
 6. 사용자 인증을 위한 passport.js 파일생성
 npm install passport passport-local
+passport는 passport이고,
+passport-local은 username과 password를 쓰는 사용자 인증 방식(strategy)을 의미
+지금은 pasport-local을 설치하고, 나중에 passport-facebook과 passport-github같은 것도 설치함
+
 7. passport.js에서
-passport와 User를 import한 후에
-passport.use()함수를 통해 strategy를 사용할텐데, strategy는 로그인 방식을 의미, 페이스북 혹은 깃헙 등
+import passport from "passport";
+import User from "./models/User";
+passport와 User를 import한 후에 passport.use()함수를 통해 strategy를 사용할텐데,
+strategy는 로그인 방식을 의미, 페이스북 혹은 깃헙 등
+passport-local-mongoose가 제공하는 strategy를 사용하려고함
+usename과 password를 쓰는 상당히 좋은 지름길같은 strategy임. 보통은 좀 복잡한 기능을 구현해야됨
+참고) passport.js홈피에서 username&password <<= 여기 참고
+
 
 #6.2
 serialize : 어떤 정보를 쿠키에게 주느냐를 의미. 지금 웹브라우저(즉, 클라이언트)에 있는 사용자에 대해서 어떤 정보를 가질 수 있느냐
