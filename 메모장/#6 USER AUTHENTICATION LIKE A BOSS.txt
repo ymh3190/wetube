@@ -118,34 +118,237 @@ express-session 설치 <= npm install express-session
 
 
 #6.4
+설치한 express-session 임포트
+import session from "express-session";
+
 세션 사용을 위한 설정
+passport.initialize()하기 전의 위치에 app.use(session({}));
+session의 객체 인자로 중요한게 있는데, 그건 바로 secret 이란 거임
+secret은 무작위 문자열로서, 쿠키에 들어있는 session id를 암호화함. 꼭 들어가야하는 인자임
+randomkeygen에서 무작위문자열 가져오기
+문자열을 바로 쓰기보단 .env에 넣어주자 왜? 사람들이 secret을 보게 되기를 원치않음
+resave, saveUninitialized도 인자값으로 설정
+
+세션이란? 쿠키를 암호화하고, 웹서버에 request할 떄 마다 서버에서는 passport인증과정을 호출하고
+passport는 deserialize를 통해 내가 어느 사용자인지 식별하게됨
+
+지금까지 한걸로 테스트해보면 미들웨어에
+console.log(req.user)가 정의되지 않은 오류를 확인함
+쿠키를 삭제하고 다시 로그인해보면 정상 출력됨
+
+이제 template header.pug에서 isAuthenticated는 없으니까 제거
+짜잔~ 로그인된 헤더로 바뀜
+
+upload를 클릭해보면 누가 무슨 요청을 하고있는지 알 수 있음
+이게 가능한 이유는 쿠키가 존재하기 때문임
+application의 쿠키는 express로 보내지고 있음
+express는 session을 이용함으로써, 쿠키를 손에 쥘 수 있게 됨
+그리고 passport를 통해서 우린 session을 이용하는데, 즉 session이 가진 쿠키를 이용한다는 걸 의미
+그리고 그 passport로 deserialize를 진행하는거지. session은 쿠키를 해독하거든
+
+간단히말하면 클라이언트가 브라우저에 쿠키(어떤 정보가 담길지)를 설정하고 <= serialize, 쿠키는 session의 id다.
+서버에 쿠키를 암호화(express-session으로)해서 보내고 <= app.use(session())
+서버는 passport.session()으로 암호화된 쿠키를 해독(deserialize)해서 사용자를 알아낸다
+
+테스트해보면 문제 없이 로그인되고, 헤더가 바뀐다. 하지만 문제점이 있는데
+새로고침을 하면 세션을 잃는다는 것
+왜냐? 우리는 지금 세션을 메모리에 저장하고 있기 떄문에
+서버는 사용자가 어떤 쿠키를 가지고 있는지 기억해야됨
 
 
 #6.5
 데이터베이스를 사용해서 세션 저장하기
-connect-mongo를 써서 session에게 데이터를 MongoStore라는 저장소에 저장하라고 알려줌
-npm install connect-mongo@2.0.1
+connect-mongo를 써서 저장소를 생성할거임
+connect-mongo를 써서 session에게 데이터를 (메모리가아닌)MongoStore라는 저장소에 저장하라고 알려주는거지
+설치 : npm i connect-mongo
+설치했으면 app.js에 import ( session 밑에 ) <= import MongoStore from "connect-mongo";
+쿠키저장소도 만들자 <= const CokieStore = MongoStore(session);
+위의 방법은 예전버전 방법이라 안됨 버전을 낮추던가 혹은
+const MongoStore = require("connect-mongo").default;으로 변경
+app.use(session{})에 추가하는것도store: new CookieStore({ mongooseConnection: mongoose.connection })에서
+store: MongoStore.create({ mongoUrl: process.env.MONGO_URL })으로 변경
 
-이미 로그인 한 사람이 회원가입 못하게 미들웨어 만듦
+테스트해보면 제대로 동작하는걸 확인할 수 있음
+
+
+이제 routes의 출입을 제한하는건데,
+이미 로그인 한 사람이 가입 못하게 하는 미들웨어 만듦
 
 passport와 session 덕분에 req.user를 통해서 로그인한 유저를 알 수 있음
 
+export const onlyPublic = (req, res, next) => {	<= 로그아웃된 상태에서만 들어갈 수 있는
+  if (req.user) {
+    res.redirect(routes.home); <= middleware에서 검문을 수행하는데 passport와 session덕분에
+  } else {			<= 이 req.user를 통해서 로그인된 사용자가 누군지 알 수 있다는거지
+    next();
+  }
+};
+
+이거 globalRouter에 적용
+get&post login,join에 적용
+
+
 비밀번호 변경과 프로필 수정은 로그인 된 상태에서만 가능하도록 미들웨어를 만듦
+export const onlyPrivate = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.redirect(routes.home);
+  }
+};
+
+userRouter에 적용
+get&post editProfile, changePassword
+
+videoRouter에 적용
+upload, editVideo, deleteVideo는 로그인전용
 
 
 #6.6
-passport-github 설치
+passport-github 설치 <= npm i passport-github
+우선 깃허브 개발자페이지에서 application을 등록해야됨
+그리고 strategy도 작성해야되고
 
-깃헙에서 돌아오는 과정,
-깃헙으로 보내는 과정
+일련의 과정을 설명하자면,
+일단 우리는 사용자를 특정한 깃헙 페이지로 보낼거야
+사용자를 거기로 보내면 깃헙이 이 사람들(application)에게 너의 정보를 줘도 괜찮곘냐고 물어보겠지
+그러면 사용자는 당연하죠라고 하겠지
+그렇게 사용자의 승인을 받으면, 깃헙은 사용자를 다시 우리 application으로 돌려보내는데, 그 사용자의 정보도 함께 줄거야
+보통 이렇게 진행됨
+
+1. passport.js에서 import
+import GithubStrategy from "passport-github";
+
+2. 
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: process.env.GH_ID, <= 이런 것들은 환경변수에 넣기 딱 좋지
+      clientSecret: process.env.GH_SECRET,
+      callbackURL: "http://localhost:4000/auth/github/callback",
+    },
+     githubLoginCallback <= 사용자가 깃헙으로 갔다가 돌아오면서 사용자 정보를 가져오면 실행되는 함수
+  )
+);
+
+passport.js에 함수를 작성하면 보기 싫으니까 userController에 작성
+
+3. 막간에 로그아웃은
+req.logout();만 해면됨
+res.redirect(routes.home)
+
+4. userController.js에서 만듦
+export const githubLoginCallback = (accessToken, refreshToken, profile, cb) => {
+  console.log(accessToken, refreshToken, profile, cb);
+};
+
+지금까지한건 깃헙으로 돌아오는 과정
+이젠 깃헙으로 보내는 과정을 하자
 
 
 #6.7
-깃허브로그인을 위한 route만들기
+1. 깃헙으로 보내는 함수 만들자
+export const githubLogin = passport.authenticate("github"); <= local에서 쓰던 passport 인증방식
+
+2. 깃허브로그인을 위한 routes만들기
+const GITHUB = "/auth/github";
+const GITHUB_CALLBACK = "/auth/github/callback";
+export routes에 추가하기
+github: GITHUB,
+githubCallback: GITHUB_CALLBACK,
+
+3. passport.js에
+import routes from "./routes";추가하고
+
+redirect_uri: "http://localhost:4000/auth/github/callback", => `http://localhost:4000/${routes.githubCallback}`
+
+4. globalRouter에
+globalRouter.get(routes.github, githubLogin);추가
+
+5. 누군가 routes.github로(/auth/github) 접속하면 githubLogin함수를 실행
+그러면 인증이 진행되고, 그게 완료가 되면 사용자는 callbackURL로 돌아오겠지
+그래서 그 과정을 처리해야됨 -> 함수를 만들어야됨 userController.js에
+export const postGithubLogin = (req, res) => {
+  res.redirect(routes.home);
+};
+
+6. 깃헙으로 보내는 과정했고, 돌아오는과정에서 routes.githubcallback으로 접속하면
+인증과정을 처리해야됨
+
+import passport
+
+globalRouter.get(
+  routes.githubCallback,
+  passport.authenticate("github", {
+    failureRedirect: routes.login,
+  }),
+  postGithubLogin
+);
+
+7. 이제 깃헙 인증과정을 끝났으니까
+깃헙 버튼을 누르면 깃헙 인증으로 가도록 버튼에 링크를 달자
+a(href=routes.github) 
+
 
 #6.8
-cb함수는 passport에서 제공된 callback함수. passport에서 이 cb(callback함수)를 인증에 성공한 상황에서 호출해야됨
+사실 accessToken, refreshToken에 대해선 신경안써도됨
+중요한건 github ID, 이메일 이름 사진이 있지
+그러한 정보들은 지금 profile._json안에있지
 
+githubLoginCallback함수에서 가져와보자
+export const githubLoginCallback = async (_, __, profile, cb) => {    <=== 사용하지 않는 인자는 _, __, ___ 등으로 대체
+  await const {
+    _json: { id, avatar_url, name, email },
+  } = profile;
+  try{
+
+  }catch(error){
+    console.log(error)
+  }
+};
+
+잠깐!! cb함수에 대해
+cb함수는 callback함수로 passport에서 제공된 것
+cb함수를 언제 호출해야하냐면, 바로 인증에 성공했을 때 호출해야함
+
+cb함수는 passport에서 제공된 callback함수. passport에서 이 cb(callback함수)를 인증에 성공한 상황에서 호출해야됨
+예를들면 User.findOrCreate부분에서 return으로 cb(err, user);
+에러없이 user를 넣어주면 passport는 사용자를 찾았는지 알지
+그러면 passport는 user ID를 쿠키에 넣어줄거고. 그리고 local방식(username&password)과 마찬가지로 인증할 때 똑같은걸 해줌
+만약 user object없이 에러만 넣어서 cb함수를 호출하면 passport는 사용자를 찾지 못한 걸로 안다
+
+어떤 사용자가 가입은 했는데, 이메일+비번으로 가입했다고 치자,
+내가 이메일로 가입한 뒤, 깃헙으로 로그인 하기를 클릭하면 난 그 사용자로 로그인시킬거야
+왜냐면 얘는 그 메일을 쓰는 동일인이니까
+그러니까 만약 그 이메일을 쓰는 사용자를 찾는다면, 그 사용자의 정보를 갱신할거야
+이 사용자의 githubId를 깃헙에서 가져온 id로 할당하는거지
+
+그리고 user.save()
+만약 찾지못했다면 계정을 만들어야겠지
+
+
+#6.9
+지금까지 한 거 인증에 대한 정리
+username과 password를 이용한 방식(local)은 비교적 간단함
+username과 password를 post방식으로 전달하고, 우리가 설치해둔 플러그인으로 mongoose가 자동으로 체크함
+만약 password가 맞으면 passport에게 맞습니다 라고 알리고. 그럼 passport는 쿠키를 생성하지
+
+근데 깃헙은 좀 달라
+먼저 사용자는 깃헙 사이트로 이동하게 됨(/auth/github)
+그럼 거기서 권한 승인을 하지
+그 이후에, 깃헙 사이트는 우리에게 그 사용자의 정보를 주는데
+/auth/github/callback이라는 url로 옥됨
+그렇게 되면 passport가 함수를 호출하는데, githubLoginCallback이라는 함수
+passport에서 설정할 때 넣었음. 그래서 이 함수가 실행되는거고
+이 함수는 모든 정보를 받을거야. 사용자 profile같은거
+githubLoginCallback함수의 한 가지 조건은 cb(callback) 함수를 return 해야한다는거
+cb함수를 실행해야하는데, 그 함수에 에러가 있는지 user가 있는지 알려줘야됨
+user가 존재하면 passport는 이 user를 취해서 쿠키를 만들고,
+쿠키를 저장하지
+
+참고로
+avatar_url 부분은 카멜케이스로 쓰지않아서 오류문구가 뜨는데,
+avatar_url: avatarUrl로 바꿔주면됨
 
 
 
