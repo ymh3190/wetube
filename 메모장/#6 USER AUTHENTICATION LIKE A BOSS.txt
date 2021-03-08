@@ -225,7 +225,7 @@ passport.use(
     {
       clientID: process.env.GH_ID, <= 이런 것들은 환경변수에 넣기 딱 좋지
       clientSecret: process.env.GH_SECRET,
-      callbackURL: "http://localhost:4000/auth/github/callback",
+      redirect_uri: "http://localhost:4000/auth/github/callback",
     },
      githubLoginCallback <= 사용자가 깃헙으로 갔다가 돌아오면서 사용자 정보를 가져오면 실행되는 함수
   )
@@ -260,7 +260,7 @@ githubCallback: GITHUB_CALLBACK,
 3. passport.js에
 import routes from "./routes";추가하고
 
-redirect_uri: "http://localhost:4000/auth/github/callback", => `http://localhost:4000/${routes.githubCallback}`
+redirect_uri: "http://localhost:4000/auth/github/callback", => `http://localhost:4000${routes.githubCallback}`
 
 4. globalRouter에
 globalRouter.get(routes.github, githubLogin);추가
@@ -297,7 +297,7 @@ a(href=routes.github)
 
 githubLoginCallback함수에서 가져와보자
 export const githubLoginCallback = async (_, __, profile, cb) => {    <=== 사용하지 않는 인자는 _, __, ___ 등으로 대체
-  await const {
+  const {
     _json: { id, avatar_url, name, email },
   } = profile;
   try{
