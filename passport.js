@@ -1,9 +1,11 @@
 import passport from "passport";
 import GithubStrategy from "passport-github";
 import FacebookStrategy from "passport-facebook";
+import InstagramStrategy from "passport-instagram";
 import {
   facebookLoginCallback,
   githubLoginCallback,
+  instagramLoginCallback,
 } from "./controllers/userController";
 import User from "./models/User";
 import routes from "./routes";
@@ -29,6 +31,17 @@ passport.use(
       callbackURL: `http://localhost:4000${routes.facebookCallback}`,
     },
     facebookLoginCallback
+  )
+);
+
+passport.use(
+  new InstagramStrategy(
+    {
+      clientID: process.env.IG_ID,
+      clientSecret: process.env.IG_SECRET,
+      redirect_uri: `http://localhost:4000${routes.instagramCallback}`,
+    },
+    instagramLoginCallback
   )
 );
 

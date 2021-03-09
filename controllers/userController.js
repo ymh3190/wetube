@@ -60,6 +60,7 @@ export const githubLoginCallback = async (_, __, profile, cb) => {
     return cb(error);
   }
 };
+
 export const postGithubLogin = (req, res) => {
   res.redirect(routes.home);
 };
@@ -71,6 +72,16 @@ export const facebookLoginCallback = (_, __, profile, cb) => {
 };
 
 export const postFacebookLogin = (req, res) => {
+  res.redirect(routes.home);
+};
+
+export const instagramLogin = passport.authenticate("instagram");
+
+export const instagramLoginCallback = (_, __, profile, cb) => {
+  console.log(profile, cb);
+};
+
+export const pushInstagramLogin = (req, res) => {
   res.redirect(routes.home);
 };
 
@@ -94,7 +105,45 @@ export const userDetail = async (req, res) => {
     res.redirect(routes.home);
   }
 };
-export const editProfile = (req, res) =>
+
+export const getEditProfile = (req, res) => {
   res.render("editProfile", { pageTitle: "Edit Profile" });
-export const changePassword = (req, res) =>
+};
+
+export const postEditProfile = async (req, res) => {
+  const {
+    body: { name, email },
+    file,
+  } = req;
+  try {
+    await User.findByIdAndUpdate(req.user.id, {
+      name,
+      email,
+      avatarUrl: file ? file.path : req.user.avatarUrl,
+    });
+    res.redirect(routes.me);
+  } catch (error) {
+    res.redirect(routes.editProfile);
+  }
+};
+
+export const getChangePassword = (req, res) =>
   res.render("changePassword", { pageTitle: "Change Password" });
+
+export const postChangePassword = async (req, res) => {
+  const {
+    body: { oldPassword, newPassword, newPassword1 },
+  } = req;
+  try {
+    if (newPassword !== newPassword1) {
+      res.status(400);
+      res.redirect(`/users${routes.changePassword}`);
+      return;
+    } else {
+      await req.user.changePassword(oldPassword, newPassword);
+      res.redirect(routes.me);
+    }
+  } catch (error) {
+    res.redirect(`/users${routes.changePassword}`);
+  }
+};

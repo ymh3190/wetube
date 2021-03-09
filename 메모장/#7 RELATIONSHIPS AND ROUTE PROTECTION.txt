@@ -1,2 +1,26 @@
 1. editProfile.pug 작성
 2. 스타일링
+
+#7.1
+getEditProfile, postEditProfile 컨트롤러 만들고 router 수정 및 추가
+
+editProfile에서 사진만 올릴 수 있게 미들웨어(uploadAvatar)를 생성
+
+userRouter postEditProfile에 추가
+
+#7.2
+changePassword -> passport-local-mongoose의 changePassword함수를 쓸거
+
+우선 컨트롤러에서 changePassword함수 get post로 변경 및 추가
+라우터에 변경된 컨트롤러 추가
+
+비밀번호 변경로직에 쓸 함수 <= req.user.changePassword()
+
+#7.3
+비디오 모델에 비디오를 만든 사람을 추가하고
+유저 모델에 코멘트와 비디오 배열을 추가함
+그리고 비디오 컨트롤러로가서 업로드함수에 id관련 로직을 추가할텐데
+req.user.videos.push(newVideo.id); <= 여기서 push는 배열에 객체를 추가하는 함수
+req.user.save(); <= 추가했으면 저장
+
+populate() : 객체를 데려오는 함수

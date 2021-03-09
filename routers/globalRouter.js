@@ -11,6 +11,8 @@ import {
   getMe,
   facebookLogin,
   postFacebookLogin,
+  instagramLogin,
+  pushInstagramLogin,
 } from "../controllers/userController";
 import { home, search } from "../controllers/videoController";
 import { onlyPrivate, onlyPublic } from "../middlewares";
@@ -42,6 +44,13 @@ globalRouter.get(
   routes.facebookCallback,
   passport.authenticate("facebook", { failureRedirect: "/login" }),
   postFacebookLogin
+);
+
+globalRouter.get(routes.instagram, instagramLogin);
+globalRouter.get(
+  routes.instagramCallback,
+  passport.authenticate("instagram", { failureRedirect: "/login" }),
+  pushInstagramLogin
 );
 
 export default globalRouter;
